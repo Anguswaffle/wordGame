@@ -1,4 +1,34 @@
+* {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif !important;
+}
+
 header {
-    width: 100%;
+    width: 100%-10px;
     text-align: center;
+    font-size: 50px;
+    background-color: tomato;
+    border: wheat solid 5px;
+    
+}
+
+main {
+    display: flex;
+    justify-content: space-around;
+}
+
+section {
+    text-align: center;
+    background-color: tomato;
+    border: wheat solid 5px;
+    
+}
+
+.wordDisplay {
+    flex: 1 1 500px;
+    max-width: 66%;
+}
+
+.resultsDisplay {
+    flex: 1 1 500px;
+    max-width: 33%;
 }
