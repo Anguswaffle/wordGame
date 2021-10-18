@@ -11,12 +11,38 @@
 var wordList = ["orange", "blue", "pink", "banana"]
 
 var startBtn = document.querySelector(".start-button");
-var wordToBeGuessed = document.querySelector(".large-font-word-blanks");
+var wordEl = document.querySelector(".large-font-word-blanks");
 var resetBtn = document.querySelector(".reset-button");
-var timeLeft = document.querySelector(".large-font-timer-count");
+var timerEl = document.querySelector(".large-font-timer-count");
+var winsEl = document.querySelector(".win");
+var lossesEl = document.querySelector(".lose");
 var chosenWord = "";
 var blankWord = "";
 
+
+
+// Checking to see if local storage has an object named "stats." 
+// If true, the stats will be displayed in the HTML element
+// If false, an object named "stats" will be created and stored in local storage
+function gameCheck() {
+    if(localStorage.getItem("stats") === null){
+        var stats = {
+            wins: 0,
+            losses: 0
+        };
+        localStorage.setItem("stats", JSON.stringify(stats));
+        displayStats();
+    } else {
+        displayStats();
+    }
+}
+
+
+function displayStats() {
+    var stats = JSON.parse(localStorage.getItem("stats"));
+        winsEl.innerHTML = stats.wins;
+        lossesEl.innerHTML = stats.losses;
+}
 
 // Produces a random number
 function getRandomInt(max) {
@@ -35,22 +61,63 @@ function replaceWord(string) {
 function replaceAt(string, index, replacement) {
     return string.substr(0, index) + replacement + string.substr(index + 1);
 }
-    
-function resetWord() {
+
+function resetGame() {
     blankWord = "";
+    chosenWord = "";
+    gameCheck();
+}
+
+function userLoses() {
+    var stats = JSON.parse(localStorage.getItem("stats"))
+    stats.losses++;
+    localStorage.setItem("stats", JSON.stringify(stats));
+    alert("You ran out of time and lost.")
+    resetGame();
+}
+
+function userWins() {
+    var stats = JSON.parse(localStorage.getItem("stats"))
+    stats.wins++;
+    localStorage.setItem("stats", JSON.stringify(stats));
+    alert("You've won!");
+    resetGame();
+}
+
+function countdown() {
+    var timeLeft = 10;
+
+    var timeInterval = setInterval(function () {
+        timeLeft = timeLeft - .25;
+        timerEl.textContent = timeLeft;
+
+        if (timeLeft === 0) {
+            clearInterval(timeInterval);
+            userLoses();
+        } else if (blankWord.toLowerCase() === chosenWord) {
+            clearInterval(timeInterval);
+            userWins();
+        }
+    }, 250);
 }
 
 // Starts the game when Start button is pressed
 startBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
-    resetWord();
     chosenWord = wordList[getRandomInt(wordList.length)];
 
-    wordToBeGuessed.innerHTML = replaceWord(chosenWord);
+    wordEl.innerHTML = replaceWord(chosenWord);
+    countdown();
 
 });
 
+// Clears local storage and resets stats to 0 when reset button is pressed
+resetBtn.addEventListener("click", function(event) {
+    event.preventDefault();
+    localStorage.clear();
+    gameCheck();
+})
 
 // Checks chosen letter against letters in chosen word then replaces all matching letters
 document.addEventListener("keydown", function (event) {
@@ -60,16 +127,13 @@ document.addEventListener("keydown", function (event) {
     if (chosenWord.includes(guessedLetter)) {
         for (var i = 0; i < chosenWord.length; i++)
             if (chosenWord.charAt(i) === guessedLetter) {
-                if(i === 0) {
+                if (i === 0) {
                     guessedLetter = guessedLetter.toUpperCase();
                 }
                 blankWord = replaceAt(blankWord, i, guessedLetter);
-                wordToBeGuessed.innerHTML = blankWord;
+                wordEl.innerHTML = blankWord;
             }
     }
-
-    if(blankWord.toLowerCase() === chosenWord && !event.metaKey) {
-        alert("You win!")
-        resetWord();
-    }
 });
+
+resetGame();
