@@ -36,15 +36,18 @@ function replaceAt(string, index, replacement) {
     return string.substr(0, index) + replacement + string.substr(index + 1);
 }
     
+function resetWord() {
+    blankWord = "";
+}
+
 // Starts the game when Start button is pressed
 startBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
-    blankWord = "";
+    resetWord();
     chosenWord = wordList[getRandomInt(wordList.length)];
 
     wordToBeGuessed.innerHTML = replaceWord(chosenWord);
-
 
 });
 
@@ -57,13 +60,16 @@ document.addEventListener("keydown", function (event) {
     if (chosenWord.includes(guessedLetter)) {
         for (var i = 0; i < chosenWord.length; i++)
             if (chosenWord.charAt(i) === guessedLetter) {
-                blankWord = replaceAt(blankWord, i, guessedLetter)
+                if(i === 0) {
+                    guessedLetter = guessedLetter.toUpperCase();
+                }
+                blankWord = replaceAt(blankWord, i, guessedLetter);
                 wordToBeGuessed.innerHTML = blankWord;
             }
     }
 
-    if(blankWord === chosenWord) {
+    if(blankWord.toLowerCase() === chosenWord && !event.metaKey) {
         alert("You win!")
-        blankWord = "";
+        resetWord();
     }
 });
